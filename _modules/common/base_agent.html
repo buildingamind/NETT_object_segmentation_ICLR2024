@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>common.base_agent &mdash; NETT Object Segmentation (ICLR 2024) 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+
+  
+    <link rel="canonical" href="/html/_modules/common/base_agent.html" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js?v=af2ce170"></script>
+        <script src="../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            NETT Object Segmentation (ICLR 2024)
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../documentation/index.html">Documentation</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">NETT Object Segmentation (ICLR 2024)</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">common.base_agent</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for common.base_agent</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+
+<span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
+
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">from</span> <span class="nn">gym.wrappers.monitoring.video_recorder</span> <span class="kn">import</span> <span class="n">VideoRecorder</span>
+
+<span class="kn">from</span> <span class="nn">stable_baselines3.common.env_checker</span> <span class="kn">import</span> <span class="n">check_env</span>
+<span class="kn">from</span> <span class="nn">stable_baselines3</span> <span class="kn">import</span> <span class="n">PPO</span>
+<span class="kn">from</span> <span class="nn">stable_baselines3.common.env_util</span> <span class="kn">import</span> <span class="n">make_vec_env</span>
+<span class="kn">from</span> <span class="nn">stable_baselines3.common</span> <span class="kn">import</span> <span class="n">results_plotter</span>
+
+
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">sb3_contrib</span> <span class="kn">import</span> <span class="n">RecurrentPPO</span>
+<span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
+
+<span class="kn">from</span> <span class="nn">utils</span> <span class="kn">import</span> <span class="n">debug_logger</span><span class="p">,</span> <span class="n">to_dict</span><span class="p">,</span> <span class="n">write_to_file</span>
+<span class="kn">from</span> <span class="nn">networks.encoder_config</span> <span class="kn">import</span> <span class="n">ENCODERS</span>
+<span class="kn">from</span> <span class="nn">GPUtil</span> <span class="kn">import</span> <span class="n">getFirstAvailable</span>
+
+
+<div class="viewcode-block" id="BaseAgent"><a class="viewcode-back" href="../../documentation/common.html#common.base_agent.BaseAgent">[docs]</a><span class="k">class</span> <span class="nc">BaseAgent</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">agent_id</span><span class="o">=</span><span class="s2">&quot;Default Agent&quot;</span><span class="p">,</span> \
+        <span class="n">log_path</span><span class="o">=</span><span class="s2">&quot;./Brains&quot;</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">agent_id</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">summary_freq</span> <span class="o">=</span> <span class="mi">30000</span> 
+        <span class="bp">self</span><span class="o">.</span><span class="n">rec_path</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;rec_path&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="s1">&#39;rec_path&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+        
+        <span class="c1">## get encoder configuration</span>
+        <span class="n">encoder</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;encoder&#39;</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">encoder_type</span> <span class="o">=</span> <span class="n">encoder</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">encoder_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ENCODERS</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Encoder type &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">encoder_type</span><span class="si">}</span><span class="s2">&#39; not found in encoder_config file.&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">encoder</span> <span class="o">=</span> <span class="n">ENCODERS</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">encoder_type</span><span class="p">][</span><span class="s1">&#39;encoder&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">encoder_dim</span> <span class="o">=</span> <span class="n">ENCODERS</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">encoder_type</span><span class="p">][</span><span class="s1">&#39;feature_dimensions&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">train_encoder</span> <span class="o">=</span> <span class="n">encoder</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;train&#39;</span><span class="p">,</span><span class="kc">True</span><span class="p">)</span>
+        
+        <span class="c1">## get other parameters</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;mini_batchsize&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">buffer_size</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;buffer_size&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">seed</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;seed&#39;</span><span class="p">]</span>
+        
+        <span class="c1">## set device</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">&quot;cuda&quot;</span> <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span> <span class="k">else</span> <span class="s2">&quot;cpu&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">policy</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;policy&quot;</span><span class="p">]</span>
+
+        <span class="c1"># If path does not exist, create it as a directory</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">log_path</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">log_path</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log_dir</span> <span class="o">=</span> <span class="n">log_path</span>
+
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">log_path</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">log_path</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">log_path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">plots_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="p">,</span> <span class="s2">&quot;plots&quot;</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">plots_path</span><span class="p">,</span> <span class="n">exist_ok</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">env_log_path</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;env_log_path&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model_save_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;model&quot;</span><span class="p">)</span>
+
+        <span class="c1">## recordings path - recordings</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">video_record_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rec_path</span><span class="p">,</span><span class="s2">&quot;test&quot;</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">video_record_path</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1">## set cuda device if available</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">device_num</span> <span class="o">=</span> <span class="n">getFirstAvailable</span><span class="p">(</span><span class="n">attempts</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">interval</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">maxMemory</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device_num</span><span class="p">)</span>
+        <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">set_device</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device_num</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">assert</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">current_device</span><span class="p">()</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">device_num</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">debug_logger</span> <span class="o">=</span> <span class="n">debug_logger</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;agent.log&quot;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">object_background</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;env_object_background&quot;</span><span class="p">,</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+        
+    <span class="nd">@abstractmethod</span>   
+    <span class="k">def</span> <span class="nf">train</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env</span><span class="p">,</span> <span class="n">eps</span><span class="p">)</span><span class="o">-&gt;</span><span class="kc">None</span><span class="p">:</span>
+        <span class="k">pass</span>
+
+<div class="viewcode-block" id="BaseAgent.test"><a class="viewcode-back" href="../../documentation/common.html#common.base_agent.BaseAgent.test">[docs]</a>    <span class="k">def</span> <span class="nf">test</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env</span><span class="p">,</span> <span class="n">eps</span><span class="p">,</span> <span class="n">record_prefix</span> <span class="o">=</span> <span class="s2">&quot;rest&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Test the agent in the given environment for the set number of steps</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            env : gym environment wrapper</span>
+<span class="sd">            eps : number of test episodes</span>
+<span class="sd">            record_prefix (str, optional): recording file name prefix</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">debug_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Usage Error: model is not specified either train a new model or load a trained model&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
+        
+        <span class="c1">#Run the testing</span>
+        <span class="n">steps</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">steps_from_eps</span><span class="p">(</span><span class="n">eps</span><span class="p">)</span>
+        
+        <span class="n">e_gen</span> <span class="o">=</span> <span class="k">lambda</span> <span class="p">:</span> <span class="n">env</span>
+        <span class="n">envs</span> <span class="o">=</span> <span class="n">make_vec_env</span><span class="p">(</span><span class="n">env_id</span><span class="o">=</span><span class="n">e_gen</span><span class="p">,</span> <span class="n">n_envs</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        
+        <span class="c1">## record - test video</span>
+        <span class="n">vr</span> <span class="o">=</span> <span class="n">VideoRecorder</span><span class="p">(</span><span class="n">env</span><span class="o">=</span><span class="n">envs</span><span class="p">,</span>
+        <span class="n">path</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">/</span><span class="si">{}</span><span class="s2">_</span><span class="si">{}</span><span class="s2">.mp4&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">video_record_path</span><span class="p">,</span> \
+            <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">),</span> <span class="n">record_prefix</span><span class="p">),</span> <span class="n">enabled</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">policy</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">==</span><span class="s2">&quot;ppo&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">debug_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Total number of steps:</span><span class="si">{</span><span class="n">steps</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">obs</span> <span class="o">=</span> <span class="n">envs</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">steps</span><span class="p">),</span> <span class="n">desc</span><span class="o">=</span><span class="s2">&quot;Testing progress&quot;</span><span class="p">):</span>
+                <span class="n">action</span><span class="p">,</span> <span class="n">_states</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">obs</span><span class="p">,</span> <span class="n">deterministic</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="n">obs</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">done</span><span class="p">,</span> <span class="n">info</span> <span class="o">=</span> <span class="n">envs</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
+                
+                <span class="k">if</span> <span class="n">done</span><span class="p">:</span>
+                    <span class="n">env</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+                
+                <span class="n">env</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;rgb_array&quot;</span><span class="p">)</span>
+                <span class="n">vr</span><span class="o">.</span><span class="n">capture_frame</span><span class="p">()</span>    
+
+            <span class="n">vr</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+            <span class="n">vr</span><span class="o">.</span><span class="n">enabled</span> <span class="o">=</span> <span class="kc">False</span>
+            
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">total_number_of_episodes</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">total_number_of_test_eps</span><span class="p">(</span><span class="n">eps</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">debug_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">total_number_of_episodes</span><span class="p">)</span>
+            <span class="n">num_envs</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">total_number_of_episodes</span><span class="p">),</span> <span class="n">desc</span><span class="o">=</span><span class="s2">&quot;Testing progress&quot;</span><span class="p">):</span>
+                <span class="n">obs</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+                <span class="c1"># cell and hidden state of the LSTM</span>
+                <span class="n">dones</span><span class="p">,</span> <span class="n">lstm_states</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">None</span>
+                <span class="n">num_envs</span> <span class="o">=</span> <span class="mi">1</span>
+
+                <span class="c1"># Episode start signals are used to reset the lstm states</span>
+                <span class="n">episode_starts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">num_envs</span><span class="p">,),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+                <span class="n">episode_length</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="k">while</span> <span class="ow">not</span> <span class="n">dones</span><span class="p">:</span>
+                    <span class="n">action</span><span class="p">,</span> <span class="n">lstm_states</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">obs</span><span class="p">,</span> <span class="n">state</span><span class="o">=</span><span class="n">lstm_states</span><span class="p">,</span> <span class="n">episode_start</span><span class="o">=</span><span class="n">episode_starts</span><span class="p">,</span> <span class="n">deterministic</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                    <span class="n">obs</span><span class="p">,</span> <span class="n">rewards</span><span class="p">,</span> <span class="n">dones</span><span class="p">,</span> <span class="n">info</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
+                    <span class="n">episode_starts</span> <span class="o">=</span> <span class="n">dones</span>
+                    <span class="n">episode_length</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="n">env</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;rgb_array&quot;</span><span class="p">)</span>
+                    <span class="n">vr</span><span class="o">.</span><span class="n">capture_frame</span><span class="p">()</span>    
+                    
+                <span class="c1">#print(f&quot;Episode length:{episode_length}, num_episode = {i}&quot;)</span>
+                    
+            <span class="n">vr</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+            <span class="n">vr</span><span class="o">.</span><span class="n">enabled</span> <span class="o">=</span> <span class="kc">False</span>          
+            
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="kc">None</span></div>
+    
+<div class="viewcode-block" id="BaseAgent.save"><a class="viewcode-back" href="../../documentation/common.html#common.base_agent.BaseAgent.save">[docs]</a>    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Save agent prains to the specified path</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            path (str): Path value to save the model</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_save_path</span>
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">path</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="BaseAgent.load"><a class="viewcode-back" href="../../documentation/common.html#common.base_agent.BaseAgent.load">[docs]</a>    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span><span class="o">-&gt;</span><span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Load the model from the specified path</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            path (str): model saved path. Defaults to None.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">debug_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;load called&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">path</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_save_path</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">debug_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_save_path</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">policy</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;ppo&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">PPO</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_save_path</span><span class="p">,</span> <span class="n">print_system_info</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">debug_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Loading recurrent agent:&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_save_path</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">RecurrentPPO</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_save_path</span><span class="p">,</span> <span class="n">print_system_info</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+        
+<div class="viewcode-block" id="BaseAgent.check_env"><a class="viewcode-back" href="../../documentation/common.html#common.base_agent.BaseAgent.check_env">[docs]</a>    <span class="k">def</span> <span class="nf">check_env</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Check environment</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            env (vector environment): vector env check for correctness</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            Exception: raise exception if env check fails</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            bool: env check is successful or failed</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">env_check</span> <span class="o">=</span> <span class="n">check_env</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">warn</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">env_check</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">debug_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed env check: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">ex</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed env check&quot;</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="BaseAgent.plot_results"><a class="viewcode-back" href="../../documentation/common.html#common.base_agent.BaseAgent.plot_results">[docs]</a>    <span class="k">def</span> <span class="nf">plot_results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">steps</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span> <span class="n">plot_name</span><span class="o">=</span><span class="s2">&quot;chickai-train&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generate reward plot for training</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            steps (int): number of training steps</span>
+<span class="sd">            plot_name (str, optional): Name of the reward plot. Defaults to &quot;chickai-train&quot;.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">results_plotter</span><span class="o">.</span><span class="n">plot_results</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">],</span> <span class="n">steps</span><span class="p">,</span> 
+                                     <span class="n">results_plotter</span><span class="o">.</span><span class="n">X_TIMESTEPS</span><span class="p">,</span> <span class="n">plot_name</span><span class="p">)</span>
+        
+        
+        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">plots_path</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span> <span class="o">+</span> <span class="n">plot_name</span> <span class="o">+</span> <span class="s2">&quot;.png&quot;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">clf</span><span class="p">()</span></div>
+        
+<div class="viewcode-block" id="BaseAgent.save_encoder_policy_network"><a class="viewcode-back" href="../../documentation/common.html#common.base_agent.BaseAgent.save_encoder_policy_network">[docs]</a>    <span class="k">def</span> <span class="nf">save_encoder_policy_network</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Saves the policy and feature extractor of the agent&#39;s model.</span>
+
+<span class="sd">        This method saves the policy and feature extractor of the agent&#39;s model</span>
+<span class="sd">        to the specified paths. It first checks if the model is loaded, and if not,</span>
+<span class="sd">        it prints an error message and returns. Otherwise, it saves the policy as</span>
+<span class="sd">        a pickle file and the feature extractor as a PyTorch state dictionary.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">debug_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Usage Error: model is not specified either train a new model or load a trained model&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
+        
+        <span class="n">base_path</span><span class="p">,</span> <span class="n">model_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_save_path</span><span class="p">)</span>
+        
+        <span class="c1">## save policy</span>
+        <span class="n">policy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">policy</span>
+        <span class="n">policy</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">base_path</span><span class="p">,</span> <span class="s2">&quot;policy.pkl&quot;</span><span class="p">))</span>
+        
+        <span class="c1">## save encoder</span>
+        <span class="n">encoder</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">policy</span><span class="o">.</span><span class="n">features_extractor</span><span class="o">.</span><span class="n">state_dict</span><span class="p">()</span>
+        <span class="n">save_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">base_path</span><span class="p">,</span> <span class="s2">&quot;feature_extractor.pth&quot;</span><span class="p">)</span>
+        <span class="n">torch</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">encoder</span><span class="p">,</span> <span class="n">save_path</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">debug_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Saved feature_extractor: </span><span class="si">{</span><span class="n">save_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span></div>
+    
+<div class="viewcode-block" id="BaseAgent.set_feature_extractor_require_grad"><a class="viewcode-back" href="../../documentation/common.html#common.base_agent.BaseAgent.set_feature_extractor_require_grad">[docs]</a>    <span class="k">def</span> <span class="nf">set_feature_extractor_require_grad</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the `requires_grad` attribute of the parameters in the feature extractor of the given model to False.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            model (torch.nn.Module): The model whose feature extractor parameters need to have `requires_grad` set to False.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            torch.nn.Module: The updated model with feature extractor parameters having `requires_grad` set to False.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">policy</span><span class="o">.</span><span class="n">features_extractor</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">policy</span><span class="o">.</span><span class="n">features_extractor</span><span class="o">.</span><span class="n">parameters</span><span class="p">():</span>
+            <span class="n">param</span><span class="o">.</span><span class="n">requires_grad</span> <span class="o">=</span> <span class="kc">False</span>
+            
+        <span class="k">return</span> <span class="n">model</span></div>
+    
+<div class="viewcode-block" id="BaseAgent.write_model_properties"><a class="viewcode-back" href="../../documentation/common.html#common.base_agent.BaseAgent.write_model_properties">[docs]</a>    <span class="k">def</span> <span class="nf">write_model_properties</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">steps</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Writes the properties of the model to a JSON file.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            model (object): The model object.</span>
+<span class="sd">            steps (int): The total number of timesteps.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">model_props</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;encoder_type&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">encoder_type</span><span class="p">,</span>
+            <span class="s2">&quot;batch_size&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span><span class="p">,</span>
+            <span class="s2">&quot;buffer_size&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">buffer_size</span><span class="p">,</span>
+            <span class="s2">&quot;policy&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">policy</span><span class="p">,</span>
+            <span class="s2">&quot;total_timesteps&quot;</span><span class="p">:</span> <span class="n">steps</span><span class="p">,</span>
+            <span class="s2">&quot;tensorboard_path&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span>
+            <span class="s2">&quot;logpath&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span>
+            <span class="s2">&quot;agent_id&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">id</span>
+        <span class="p">}</span>
+
+        <span class="n">model_dict</span> <span class="o">=</span> <span class="n">to_dict</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">)</span>
+        <span class="n">model_dict</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">model_props</span><span class="p">)</span>
+
+        <span class="n">file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;model_agent_dump.json&quot;</span><span class="p">)</span>
+        <span class="n">write_to_file</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">model_dict</span><span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Manjulata Garimella.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

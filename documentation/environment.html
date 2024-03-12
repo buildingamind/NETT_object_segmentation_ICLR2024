@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Environment &mdash; NETT Object Segmentation (ICLR 2024) 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+
+  
+    <link rel="canonical" href="/html/documentation/environment.html" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=af2ce170"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Networks" href="networks.html" />
+    <link rel="prev" title="Agent" href="agent.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            NETT Object Segmentation (ICLR 2024)
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="agent.html">Agent</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Environment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="networks.html">Networks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="callback.html">Callback</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">NETT Object Segmentation (ICLR 2024)</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Documentation</a></li>
+      <li class="breadcrumb-item active">Environment</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/documentation/environment.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="environment">
+<h1>Environment<a class="headerlink" href="#environment" title="Permalink to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="env_wrapper.chickai_env_wrapper.ChickAIEnvWrapper">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">env_wrapper.chickai_env_wrapper.</span></span><span class="sig-name descname"><span class="pre">ChickAIEnvWrapper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_port</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5004</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/env_wrapper/chickai_env_wrapper.html#ChickAIEnvWrapper"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#env_wrapper.chickai_env_wrapper.ChickAIEnvWrapper" title="Permalink to this definition"></a></dt>
+<dd><p>Wrapper class for the ChickAI environment.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>run_id</strong> (<em>str</em>) – The ID of the current run.</p></li>
+<li><p><strong>env_path</strong> (<em>str</em>) – The path to the Unity environment executable.</p></li>
+<li><p><strong>base_port</strong> (<em>int</em>) – The base port number for the Unity environment.</p></li>
+<li><p><strong>**kwargs</strong> – Additional keyword arguments.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="env_wrapper.chickai_env_wrapper.ChickAIEnvWrapper.env">
+<span class="sig-name descname"><span class="pre">env</span></span><a class="headerlink" href="#env_wrapper.chickai_env_wrapper.ChickAIEnvWrapper.env" title="Permalink to this definition"></a></dt>
+<dd><p>The wrapped Unity environment.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>UnityToGymWrapper</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="env_wrapper.chickai_env_wrapper.ChickAIEnvWrapper.mode">
+<span class="sig-name descname"><span class="pre">mode</span></span><a class="headerlink" href="#env_wrapper.chickai_env_wrapper.ChickAIEnvWrapper.mode" title="Permalink to this definition"></a></dt>
+<dd><p>The mode of the environment.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="env_wrapper.chickai_env_wrapper.ChickAIEnvWrapper.step">
+<span class="sig-name descname"><span class="pre">step</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/env_wrapper/chickai_env_wrapper.html#ChickAIEnvWrapper.step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#env_wrapper.chickai_env_wrapper.ChickAIEnvWrapper.step" title="Permalink to this definition"></a></dt>
+<dd><p>Step the environment for one timestep.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="env_wrapper.chickai_env_wrapper.ChickAIEnvWrapper.log">
+<span class="sig-name descname"><span class="pre">log</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/env_wrapper/chickai_env_wrapper.html#ChickAIEnvWrapper.log"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#env_wrapper.chickai_env_wrapper.ChickAIEnvWrapper.log" title="Permalink to this definition"></a></dt>
+<dd><p>Write to the log file.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="env_wrapper.chickai_env_wrapper.ChickAIEnvWrapper.close">
+<span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/env_wrapper/chickai_env_wrapper.html#ChickAIEnvWrapper.close"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#env_wrapper.chickai_env_wrapper.ChickAIEnvWrapper.close" title="Permalink to this definition"></a></dt>
+<dd><p>Close the environment.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="env_wrapper.chickai_env_wrapper.ChickAIEnvWrapper.reset">
+<span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/env_wrapper/chickai_env_wrapper.html#ChickAIEnvWrapper.reset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#env_wrapper.chickai_env_wrapper.ChickAIEnvWrapper.reset" title="Permalink to this definition"></a></dt>
+<dd><p>Reset the environment.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="env_wrapper.chickai_env_wrapper.ChickAIEnvWrapper.steps_from_eps">
+<span class="sig-name descname"><span class="pre">steps_from_eps</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/env_wrapper/chickai_env_wrapper.html#ChickAIEnvWrapper.steps_from_eps"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#env_wrapper.chickai_env_wrapper.ChickAIEnvWrapper.steps_from_eps" title="Permalink to this definition"></a></dt>
+<dd><p>Get the number of steps from the given episode.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="id0">
+<span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/env_wrapper/chickai_env_wrapper.html#ChickAIEnvWrapper.close"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id0" title="Permalink to this definition"></a></dt>
+<dd><p>Close the environment.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="id1">
+<span class="sig-name descname"><span class="pre">log</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/env_wrapper/chickai_env_wrapper.html#ChickAIEnvWrapper.log"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id1" title="Permalink to this definition"></a></dt>
+<dd><p>Write a message to the log file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>msg</strong> (<em>str</em>) – The message to write.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="id2">
+<span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/env_wrapper/chickai_env_wrapper.html#ChickAIEnvWrapper.reset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id2" title="Permalink to this definition"></a></dt>
+<dd><p>Reset the environment.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>seed</strong> (<em>int</em>) – The random seed for the environment.</p></li>
+<li><p><strong>**kwargs</strong> – Additional keyword arguments.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The initial state of the environment.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="id3">
+<span class="sig-name descname"><span class="pre">step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">action</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/env_wrapper/chickai_env_wrapper.html#ChickAIEnvWrapper.step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id3" title="Permalink to this definition"></a></dt>
+<dd><p>Step the environment for one timestep.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>action</strong> – The action to take in the environment.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A tuple containing the next state, reward, done flag, and additional information.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="id4">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">steps_from_eps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eps</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/env_wrapper/chickai_env_wrapper.html#ChickAIEnvWrapper.steps_from_eps"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id4" title="Permalink to this definition"></a></dt>
+<dd><p>Get the number of steps from the given episode.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>eps</strong> – The episode.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The number of steps.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="env_wrapper.parsing_env_wrapper.ParsingEnv">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">env_wrapper.parsing_env_wrapper.</span></span><span class="sig-name descname"><span class="pre">ParsingEnv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_port</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5004</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/env_wrapper/parsing_env_wrapper.html#ParsingEnv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#env_wrapper.parsing_env_wrapper.ParsingEnv" title="Permalink to this definition"></a></dt>
+<dd><p>A class representing the Parsing Environment.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="env_wrapper.parsing_env_wrapper.ParsingEnv.numb_conditions">
+<span class="sig-name descname"><span class="pre">numb_conditions</span></span><a class="headerlink" href="#env_wrapper.parsing_env_wrapper.ParsingEnv.numb_conditions" title="Permalink to this definition"></a></dt>
+<dd><p>The number of test conditions in the environment.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">__init__(self,</span> <span class="pre">run_id</span></span></dt>
+<dd><p>str, env_path=None, base_port=5004, <a href="#id5"><span class="problematic" id="id6">**</span></a>kwargs): Initializes the ParsingEnv object.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="env_wrapper.parsing_env_wrapper.ParsingEnv.steps_from_eps">
+<span class="sig-name descname"><span class="pre">steps_from_eps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eps</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/env_wrapper/parsing_env_wrapper.html#ParsingEnv.steps_from_eps"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#env_wrapper.parsing_env_wrapper.ParsingEnv.steps_from_eps" title="Permalink to this definition"></a></dt>
+<dd><p>Calculates the number of steps based on the number of episodes.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="id7">
+<span class="sig-name descname"><span class="pre">steps_from_eps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eps</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/env_wrapper/parsing_env_wrapper.html#ParsingEnv.steps_from_eps"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id7" title="Permalink to this definition"></a></dt>
+<dd><p>Calculates the number of steps based on the number of episodes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>eps</strong> (<em>int</em>) – The number of episodes.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The total number of steps.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="env_wrapper.dvs_wrapper.DVSWrapper">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">env_wrapper.dvs_wrapper.</span></span><span class="sig-name descname"><span class="pre">DVSWrapper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">change_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">60</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kernel_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(3,</span> <span class="pre">3)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/env_wrapper/dvs_wrapper.html#DVSWrapper"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#env_wrapper.dvs_wrapper.DVSWrapper" title="Permalink to this definition"></a></dt>
+<dd><p>A gym observation wrapper that performs Dynamic Vision Sensor (DVS) transformation on the environment observations.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>env</strong> (<em>gym.Env</em>) – The environment to wrap.</p></li>
+<li><p><strong>change_threshold</strong> (<em>int</em>) – The threshold value for detecting changes in pixel intensity.</p></li>
+<li><p><strong>kernel_size</strong> (<em>tuple</em>) – The size of the Gaussian kernel used for blurring.</p></li>
+<li><p><strong>sigma</strong> (<em>float</em>) – The standard deviation of the Gaussian kernel.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="env_wrapper.dvs_wrapper.DVSWrapper.change_threshold">
+<span class="sig-name descname"><span class="pre">change_threshold</span></span><a class="headerlink" href="#env_wrapper.dvs_wrapper.DVSWrapper.change_threshold" title="Permalink to this definition"></a></dt>
+<dd><p>The threshold value for detecting changes in pixel intensity.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="env_wrapper.dvs_wrapper.DVSWrapper.kernel_size">
+<span class="sig-name descname"><span class="pre">kernel_size</span></span><a class="headerlink" href="#env_wrapper.dvs_wrapper.DVSWrapper.kernel_size" title="Permalink to this definition"></a></dt>
+<dd><p>The size of the Gaussian kernel used for blurring.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="env_wrapper.dvs_wrapper.DVSWrapper.sigma">
+<span class="sig-name descname"><span class="pre">sigma</span></span><a class="headerlink" href="#env_wrapper.dvs_wrapper.DVSWrapper.sigma" title="Permalink to this definition"></a></dt>
+<dd><p>The standard deviation of the Gaussian kernel.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="env_wrapper.dvs_wrapper.DVSWrapper.num_stack">
+<span class="sig-name descname"><span class="pre">num_stack</span></span><a class="headerlink" href="#env_wrapper.dvs_wrapper.DVSWrapper.num_stack" title="Permalink to this definition"></a></dt>
+<dd><p>The number of frames to stack.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="env_wrapper.dvs_wrapper.DVSWrapper.env">
+<span class="sig-name descname"><span class="pre">env</span></span><a class="headerlink" href="#env_wrapper.dvs_wrapper.DVSWrapper.env" title="Permalink to this definition"></a></dt>
+<dd><p>The wrapped environment.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>gym.Env</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="env_wrapper.dvs_wrapper.DVSWrapper.stack">
+<span class="sig-name descname"><span class="pre">stack</span></span><a class="headerlink" href="#env_wrapper.dvs_wrapper.DVSWrapper.stack" title="Permalink to this definition"></a></dt>
+<dd><p>A deque to store the stacked frames.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>collections.deque</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="env_wrapper.dvs_wrapper.DVSWrapper.shape">
+<span class="sig-name descname"><span class="pre">shape</span></span><a class="headerlink" href="#env_wrapper.dvs_wrapper.DVSWrapper.shape" title="Permalink to this definition"></a></dt>
+<dd><p>The shape of the observation space.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="env_wrapper.dvs_wrapper.DVSWrapper.observation_space">
+<span class="sig-name descname"><span class="pre">observation_space</span></span><a class="headerlink" href="#env_wrapper.dvs_wrapper.DVSWrapper.observation_space" title="Permalink to this definition"></a></dt>
+<dd><p>The modified observation space.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>gym.spaces.Box</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="env_wrapper.dvs_wrapper.DVSWrapper.create_grayscale">
+<span class="sig-name descname"><span class="pre">create_grayscale</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/env_wrapper/dvs_wrapper.html#DVSWrapper.create_grayscale"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#env_wrapper.dvs_wrapper.DVSWrapper.create_grayscale" title="Permalink to this definition"></a></dt>
+<dd><p>Converts an image to grayscale.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="env_wrapper.dvs_wrapper.DVSWrapper.gaussianDiff">
+<span class="sig-name descname"><span class="pre">gaussianDiff</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">previous</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">current</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/env_wrapper/dvs_wrapper.html#DVSWrapper.gaussianDiff"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#env_wrapper.dvs_wrapper.DVSWrapper.gaussianDiff" title="Permalink to this definition"></a></dt>
+<dd><p>Computes the difference between two images using Gaussian blur.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="env_wrapper.dvs_wrapper.DVSWrapper.observation">
+<span class="sig-name descname"><span class="pre">observation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/env_wrapper/dvs_wrapper.html#DVSWrapper.observation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#env_wrapper.dvs_wrapper.DVSWrapper.observation" title="Permalink to this definition"></a></dt>
+<dd><p>Performs the DVS transformation on the observation.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="env_wrapper.dvs_wrapper.DVSWrapper.threshold">
+<span class="sig-name descname"><span class="pre">threshold</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">change</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/env_wrapper/dvs_wrapper.html#DVSWrapper.threshold"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#env_wrapper.dvs_wrapper.DVSWrapper.threshold" title="Permalink to this definition"></a></dt>
+<dd><p>Applies a threshold to the change map.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="env_wrapper.dvs_wrapper.DVSWrapper.reset">
+<span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/env_wrapper/dvs_wrapper.html#DVSWrapper.reset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#env_wrapper.dvs_wrapper.DVSWrapper.reset" title="Permalink to this definition"></a></dt>
+<dd><p>Resets the environment and returns the initial observation.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="id8">
+<span class="sig-name descname"><span class="pre">create_grayscale</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/env_wrapper/dvs_wrapper.html#DVSWrapper.create_grayscale"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id8" title="Permalink to this definition"></a></dt>
+<dd><p>Converts an image to grayscale.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>image</strong> (<em>numpy.ndarray</em>) – The input image.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The grayscale image.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>numpy.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="id9">
+<span class="sig-name descname"><span class="pre">gaussianDiff</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">previous</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">current</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/env_wrapper/dvs_wrapper.html#DVSWrapper.gaussianDiff"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id9" title="Permalink to this definition"></a></dt>
+<dd><p>Computes the difference between two images using Gaussian blur.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>previous</strong> (<em>numpy.ndarray</em>) – The previous image.</p></li>
+<li><p><strong>current</strong> (<em>numpy.ndarray</em>) – The current image.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The difference map.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>numpy.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="id10">
+<span class="sig-name descname"><span class="pre">observation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/env_wrapper/dvs_wrapper.html#DVSWrapper.observation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id10" title="Permalink to this definition"></a></dt>
+<dd><p>Performs the DVS transformation on the observation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>obs</strong> (<em>list</em>) – The list of stacked frames.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The transformed observation.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>numpy.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="id11">
+<span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/env_wrapper/dvs_wrapper.html#DVSWrapper.reset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id11" title="Permalink to this definition"></a></dt>
+<dd><p>Resets the environment and returns the initial observation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>**kwargs</strong> – Additional keyword arguments for resetting the environment.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The initial observation.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>numpy.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="id12">
+<span class="sig-name descname"><span class="pre">threshold</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">change</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/env_wrapper/dvs_wrapper.html#DVSWrapper.threshold"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id12" title="Permalink to this definition"></a></dt>
+<dd><p>Applies a threshold to the change map.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>change</strong> (<em>numpy.ndarray</em>) – The change map.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The thresholded change map.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>numpy.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="env_wrapper.observation_wrapper.ObservationWrapper">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">env_wrapper.observation_wrapper.</span></span><span class="sig-name descname"><span class="pre">ObservationWrapper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/env_wrapper/observation_wrapper.html#ObservationWrapper"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#env_wrapper.observation_wrapper.ObservationWrapper" title="Permalink to this definition"></a></dt>
+<dd><p>Gym env wrapper that transpose visual observations to (C,H,W).</p>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="agent.html" class="btn btn-neutral float-left" title="Agent" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="networks.html" class="btn btn-neutral float-right" title="Networks" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Manjulata Garimella.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

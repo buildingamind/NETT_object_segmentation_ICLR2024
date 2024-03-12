@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>callback.supervised_save_bestmodel_callback &mdash; NETT Object Segmentation (ICLR 2024) 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+
+  
+    <link rel="canonical" href="/html/_modules/callback/supervised_save_bestmodel_callback.html" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js?v=af2ce170"></script>
+        <script src="../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            NETT Object Segmentation (ICLR 2024)
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../documentation/index.html">Documentation</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">NETT Object Segmentation (ICLR 2024)</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">callback.supervised_save_bestmodel_callback</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for callback.supervised_save_bestmodel_callback</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env pytho3</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">gym</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">glob</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">pdb</span>
+<span class="kn">from</span> <span class="nn">stable_baselines3.common.results_plotter</span> <span class="kn">import</span> <span class="n">load_results</span><span class="p">,</span> <span class="n">ts2xy</span>
+
+<span class="kn">from</span> <span class="nn">stable_baselines3.common.callbacks</span> <span class="kn">import</span> <span class="n">BaseCallback</span>
+
+<span class="kn">from</span> <span class="nn">utils</span> <span class="kn">import</span> <span class="n">compute_train_performance</span>
+
+<div class="viewcode-block" id="SupervisedSaveBestModelCallback"><a class="viewcode-back" href="../../documentation/callback.html#callback.supervised_save_bestmodel_callback.SupervisedSaveBestModelCallback">[docs]</a><span class="k">class</span> <span class="nc">SupervisedSaveBestModelCallback</span><span class="p">(</span><span class="n">BaseCallback</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">summary_freq</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span> <span class="n">log_dir</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span> <span class="n">env_log_path</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span> <span class="n">agent_id</span><span class="p">:</span><span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">verbose</span><span class="o">=</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">summary_freq</span> <span class="o">=</span> <span class="n">summary_freq</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log_dir</span> <span class="o">=</span> <span class="n">log_dir</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">save_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">log_dir</span><span class="p">,</span> <span class="s2">&quot;best_performance_model&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">env_log_path</span> <span class="o">=</span> <span class="n">env_log_path</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">best_mean_performance</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">best_mean_reward</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span>
+<span class="w">        </span>
+<span class="w">    </span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;        </span>
+<span class="sd">    def _on_step(self) -&gt; None:</span>
+<span class="sd">        if self.n_calls % self.summary_freq == 0:</span>
+<span class="sd">            # Retrieve training reward</span>
+<span class="sd">            x, y = ts2xy(load_results(self.log_dir), &#39;timesteps&#39;)</span>
+<span class="sd">            if len(x) &gt; 0:</span>
+<span class="sd">                # mean reward for last 100 episodes</span>
+<span class="sd">                mean_reward  = np.mean(y[-100:])</span>
+<span class="sd">                if self.verbose &gt; 0:</span>
+<span class="sd">                    print(f&quot; Num timesteps: {self.num_timesteps}&quot;)</span>
+<span class="sd">                    print(f&quot;Best mean reward: {self.best_mean_reward:.2f}\</span>
+<span class="sd">                        - Last mean reward per episode: {mean_reward:.2f}&quot;)</span>
+<span class="sd">                if mean_reward &gt; self.best_mean_reward:</span>
+<span class="sd">                    self.best_mean_reward = mean_reward</span>
+<span class="sd">                    if self.verbose &gt;0:</span>
+<span class="sd">                        print(f&quot;Saving the best model to:{self.save_path}.zip&quot;)</span>
+<span class="sd">                    self.model.save(self.save_path)    </span>
+<span class="sd">        return True</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    
+    <span class="k">def</span> <span class="nf">_on_step</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_calls</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">summary_freq</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c1"># Retrieve training reward</span>
+            <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">compute_train_performance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">env_log_path</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                
+                <span class="c1"># mean performance for last 100 episodes</span>
+                <span class="n">mean_performance</span>  <span class="o">=</span> <span class="n">y</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                
+                <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">ts2xy</span><span class="p">(</span><span class="n">load_results</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">log_dir</span><span class="p">),</span> <span class="s1">&#39;timesteps&#39;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="c1"># mean reward for last 100 episodes</span>
+                    <span class="n">mean_reward</span>  <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="o">-</span><span class="mi">100</span><span class="p">:])</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Num timesteps: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">num_timesteps</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Best mean reward: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">best_mean_reward</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="se">\</span>
+<span class="s2">                            - Last mean reward per episode: </span><span class="si">{</span><span class="n">mean_reward</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">mean_reward</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">best_mean_reward</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">best_mean_reward</span> <span class="o">=</span> <span class="n">mean_reward</span>
+                
+                
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Best mean performance: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">best_mean_performance</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="se">\</span>
+<span class="s2">                        - Last mean performance per episode: </span><span class="si">{</span><span class="n">mean_performance</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">mean_performance</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">best_mean_performance</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">best_mean_performance</span> <span class="o">=</span> <span class="n">mean_performance</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">&gt;</span><span class="mi">0</span><span class="p">:</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Saving the best model to:</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">save_path</span><span class="si">}</span><span class="s2">.zip&quot;</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">save_path</span><span class="p">)</span>    
+        <span class="k">return</span> <span class="kc">True</span></div>
+    
+    
+    
+
+            
+        
+        
+
+            
+        
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Manjulata Garimella.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
